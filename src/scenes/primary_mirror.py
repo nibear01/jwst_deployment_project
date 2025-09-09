@@ -4,7 +4,6 @@ SILVER = "#C0C0C0"
 ACCENT_BLUE = "#1E90FF"
 GOLD = "#D4AF37"  
 
-
 def primary_mirror_deployment(scene):
         """Primary mirror wing deployment with hinge rotation"""
         # Create primary mirror
