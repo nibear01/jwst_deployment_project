@@ -1,104 +1,181 @@
-"""Helper animations & reusable widgets for scenes."""
+"""
+JWST Animation Utilities
+Helper functions for common deployment animations
+"""
+
 from manim import *
-import random
-from utils.constants import (
-    BACKGROUND_COLOR,
-    BACKGROUND_SCALE,
-    HUD_COLOR,
-)
+import numpy as np
 
-FRAME_WIDTH = config.frame_width * 2
-FRAME_HEIGHT = config.frame_height * 2
-
-def create_background(scene):
-    """Create a large background, parallax stars, and subtle nebula.
-    Background is kept centered on the camera frame to avoid cutoff
-    while camera moves."""
-    frame = scene.camera.frame
-    bg = Rectangle(
-        width=FRAME_WIDTH * BACKGROUND_SCALE,
-        height=FRAME_HEIGHT * BACKGROUND_SCALE,
+def rotate_about_point(scene, mobject, hinge_point, angle, run_time=1.2):
+    """Rotate a mobject about a specific hinge point"""
+    scene.play(
+        Rotate(mobject, angle=angle, about_point=hinge_point),
+        run_time=run_time,
+        rate_func=smooth
     )
-    bg.set_fill(BACKGROUND_COLOR, 1).set_stroke(width=0)
-    # Stars
-    stars = VGroup()
-    for _ in range(120):
-        x = random.uniform(-FRAME_WIDTH * 1.6, FRAME_WIDTH * 1.6)
-        y = random.uniform(-FRAME_HEIGHT * 1.6, FRAME_HEIGHT * 1.6)
-        r = random.uniform(0.01, 0.035)
-        dot = Dot(point=np.array([x, y, 0]), radius=r)
-        dot.set_fill(WHITE, random.uniform(0.5, 1.0))
-        dot.set_stroke(width=0)
-        stars.add(dot)
-    # Nebula (soft clouds)
-    neb = VGroup()
-    for s in [(-2.5, 0.5), (1.8, -0.8)]:
-        neb_piece = Ellipse(width=6, height=2.6).move_to(np.array(s + (0,)))
-        neb_piece.set_fill("#08203a", 0.25).set_stroke(width=0)
-        neb.add(neb_piece)
 
-    bg_group = VGroup(bg, neb, stars)
-    # keep background centered to camera frame
-    bg_group.add_updater(lambda m: m.move_to(scene.camera.frame.get_center()))
-    scene.add(bg_group)
-    return bg_group
-
-
-def setup_hud(scene):
-    """Create in-frame HUD elements and trackers. Returns trackers dict."""
-    layer_tracker = ValueTracker(0)
-    time_tracker = ValueTracker(0)
-
-    layer_label = DecimalNumber(
-        layer_tracker.get_value(),
-        num_decimal_places=0,
-        include_sign=False
+def extend_boom(scene, boom, direction, distance, run_time=1.5):
+    """Extend a boom mechanism along a direction vector"""
+    scene.play(
+        boom.animate.shift(direction * distance),
+        run_time=run_time,
+        rate_func=smooth
     )
-    layer_label.add_updater(
-        lambda m: m.set_value(int(layer_tracker.get_value()))
+
+def tension_layers_staggered(scene, layers, scale_factor=1.02, opacity=1.0, lag_ratio=0.2, run_time=2.5):
+    """Tension multiple layers with staggered timing"""
+    animations = []
+    for layer in layers:
+        animations.append(
+            layer.animate.set_opacity(opacity).scale(scale_factor)
+        )
+    
+    scene.play(
+        LaggedStart(*animations, lag_ratio=lag_ratio),
+        run_time=run_time
     )
-    layer_text = VGroup(
-        Tex("Layer"), layer_label
-    ).arrange(RIGHT, buff=0.2)
-    layer_text.to_corner(UR).shift(LEFT * 0.4 + DOWN * 0.5)
-    scene.add_fixed_in_frame_mobjects(layer_text)
 
-    timer = DecimalNumber(time_tracker.get_value(), num_decimal_places=1)
-    timer.add_updater(lambda m: m.set_value(time_tracker.get_value()))
-    timer_text = VGroup(Tex("t (min)"), timer).arrange(RIGHT, buff=0.2)
-    timer_text.to_corner(UL).shift(RIGHT * 0.4 + DOWN * 0.5)
-    scene.add_fixed_in_frame_mobjects(timer_text)
+def deploy_mirror_wing(scene, wing, center_point, angle, run_time=3.0):
+    """Deploy a mirror wing with smooth hinge rotation"""
+    scene.play(
+        Rotate(
+            wing,
+            angle=angle,
+            about_point=center_point,
+            rate_func=smooth
+        ),
+        run_time=run_time
+    )
 
-    return {
-        "layer_tracker": layer_tracker,
-        "time_tracker": time_tracker,
-        "layer_label": layer_label,
-        "timer": timer,
-    }
+def create_deployment_path(start_point, end_point, curve_factor=0.5):
+    """Create a curved Bezier path for deployment animations"""
+    control_point = (start_point + end_point) / 2 + UP * curve_factor
+    
+    path = VMobject()
+    path.set_points_as_corners([start_point, control_point, end_point])
+    path.make_smooth()
+    
+    return path
 
+def animate_along_path(scene, mobject, path, run_time=2.0, rate_func=smooth):
+    """Animate a mobject along a curved path"""
+    scene.play(
+        MoveAlongPath(mobject, path),
+        run_time=run_time,
+        rate_func=rate_func
+    )
 
-def rotate_about(scene, part, hinge_point, angle, run_time=1.2):
-    """Rotate 'part' about 'hinge_point' by 'angle' radians."""
-    scene.play(Rotate(part, angle=angle, about_point=hinge_point),
-               run_time=run_time)
+def create_expanding_circle_reveal(scene, center, max_radius, objects_to_reveal, run_time=2.0):
+    """Create an expanding circle reveal effect"""
+    reveal_circle = Circle(radius=0.1, color=WHITE, fill_opacity=0)
+    reveal_circle.move_to(center)
+    
+    scene.play(
+        reveal_circle.animate.scale(max_radius * 10),  # Scale to max radius
+        *[FadeIn(obj) for obj in objects_to_reveal],
+        run_time=run_time
+    )
+    
+    scene.remove(reveal_circle)
 
+def create_hud_update_animation(scene, value_tracker, new_value, display_text, run_time=1.0):
+    """Animate HUD value updates"""
+    scene.play(
+        value_tracker.animate.set_value(new_value),
+        run_time=run_time,
+        rate_func=linear
+    )
 
-def boom_extend(scene, boom, direction, distance, run_time=1.2):
-    """Animate boom extension along a direction vector."""
-    scene.play(boom.animate.shift(direction * distance), run_time=run_time)
+def parallax_star_movement(scene, stars, direction, distance, run_time=3.0):
+    """Create parallax movement effect for background stars"""
+    animations = []
+    
+    for i, star in enumerate(stars):
+        # Vary movement based on star "depth" (opacity suggests distance)
+        depth_factor = star.fill_opacity
+        movement = direction * distance * depth_factor
+        animations.append(star.animate.shift(movement))
+    
+    scene.play(*animations, run_time=run_time, rate_func=linear)
 
+def create_focusing_effect(scene, blurry_objects, sharp_objects, run_time=2.0):
+    """Simulate wavefront sensing and focusing"""
+    # Fade out blurry, fade in sharp
+    scene.play(
+        *[FadeOut(obj) for obj in blurry_objects],
+        *[FadeIn(obj) for obj in sharp_objects],
+        run_time=run_time,
+        rate_func=smooth
+    )
 
-def tension_layers(scene, layers, run_time=2.5):
-    """Staggered tensioning effect for sunshield layers."""
-    anims = [
-        layer.animate.set_opacity(1).scale(1.02)
-        for layer in layers
-    ]
-    scene.play(LaggedStart(*anims, lag_ratio=0.18), run_time=run_time)
+def create_measurement_line(start_point, end_point, label_text, color=WHITE):
+    """Create a measurement line with label"""
+    line = Line(start_point, end_point, color=color, stroke_width=2)
+    
+    # Add tick marks at ends
+    tick_size = 0.1
+    start_tick = Line(
+        start_point + UP * tick_size,
+        start_point + DOWN * tick_size,
+        color=color,
+        stroke_width=2
+    )
+    end_tick = Line(
+        end_point + UP * tick_size,
+        end_point + DOWN * tick_size,
+        color=color,
+        stroke_width=2
+    )
+    
+    # Label at midpoint
+    label = Text(label_text, font_size=14, color=color)
+    label.next_to(line.get_center(), UP, buff=0.1)
+    
+    return Group(line, start_tick, end_tick, label)
 
+def create_pulse_animation(scene, mobject, scale_factor=1.2, run_time=0.8):
+    """Create a pulsing highlight effect"""
+    scene.play(
+        mobject.animate.scale(scale_factor),
+        run_time=run_time/2,
+        rate_func=rush_into
+    )
+    scene.play(
+        mobject.animate.scale(1/scale_factor),
+        run_time=run_time/2,
+        rate_func=rush_from
+    )
 
-def camera_move(scene, target_point, scale=1.0, run_time=1.2, rate_func=there_and_back):
-    """Move & zoom camera frame artistically."""
-    frame = scene.camera.frame
-    scene.play(frame.animate.move_to(target_point).scale(scale),
-               run_time=run_time, rate_func=rate_func)
+def create_spiral_deployment(scene, objects, center_point, spiral_turns=2, run_time=3.0):
+    """Deploy objects in a spiral pattern"""
+    animations = []
+    
+    for i, obj in enumerate(objects):
+        angle = i * 2 * PI / len(objects) + spiral_turns * 2 * PI
+        radius = 1.5 + 0.5 * (i / len(objects))
+        
+        final_pos = center_point + radius * np.array([np.cos(angle), np.sin(angle), 0])
+        
+        # Create curved path to final position
+        current_pos = obj.get_center()
+        path_points = []
+        
+        for t in np.linspace(0, 1, 20):
+            spiral_angle = t * angle
+            spiral_radius = t * radius
+            intermediate_pos = center_point + spiral_radius * np.array([
+                np.cos(spiral_angle), np.sin(spiral_angle), 0
+            ])
+            path_points.append(intermediate_pos)
+        
+        path = VMobject()
+        path.set_points_as_corners(path_points)
+        path.make_smooth()
+        
+        animations.append(MoveAlongPath(obj, path))
+    
+    scene.play(
+        *animations,
+        run_time=run_time,
+        rate_func=smooth
+    )

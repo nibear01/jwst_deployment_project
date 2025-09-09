@@ -3,3 +3,4 @@ media
 __pycache__
 *.pyc
 .DS_Store
+jwst_voice.mp3
