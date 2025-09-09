@@ -105,3 +105,4 @@ def sunshield_deployment(scene):
     )
     scene.wait(2)
     scene.remove(final_glow)
+

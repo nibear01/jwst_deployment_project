@@ -26,11 +26,11 @@ def primary_mirror_deployment(scene):
     scene.add(primary_mirror_group)
     
     # Camera focus on primary mirror with dramatic angle
-    scene.play(
-        scene.camera.frame.animate.move_to(UP * 3).scale(0.5).rotate(PI/12),
-        run_time=3,
-        rate_func=smooth
-    )
+    # scene.play(
+    #     scene.camera.frame.animate.move_to(UP * 3).scale(0.5).rotate(PI/12),
+    #     run_time=3,
+    #     rate_func=smooth
+    # )
     
     # Add glow effect to wings during deployment
     left_glow = left_wing.copy().set_color(ACCENT_BLUE).set_opacity(0.3)
@@ -102,3 +102,8 @@ def primary_mirror_deployment(scene):
         FadeOut(confirm_text),
         FadeOut(success_icon)
     )
+
+    scene.play(
+        FadeOut(primary_mirror_group),
+    )
+    scene.wait(1)

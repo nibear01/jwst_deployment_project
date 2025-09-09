@@ -25,11 +25,11 @@ def secondary_mirror_deployment(scene):
         scene.add(secondary_system)
         
         # Camera focus on secondary mirror with smooth zoom
-        scene.play(
-            scene.camera.frame.animate.move_to(UP * 2).scale(0.4),
-            run_time=2.5,
-            rate_func=smooth
-        )
+        # scene.play(
+        #     scene.camera.frame.animate.move_to(UP * 2).scale(0.4),
+        #     run_time=2.5,
+        #     rate_func=smooth
+        # )
         
         # Add glow effect during deployment
         mirror_glow = secondary_mirror.copy().set_color(YELLOW).set_opacity(0.3)
