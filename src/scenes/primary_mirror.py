@@ -55,25 +55,61 @@ def primary_mirror_deployment(scene):
         
         scene.remove(left_glow, right_glow)
 
+        # Subtle overshoot and settle for a more organic feel
+        scene.play(
+            Rotate(
+                left_wing,
+                angle=0.06,
+                about_point=center_segments.get_left(),
+                rate_func=there_and_back
+            ),
+            Rotate(
+                right_wing,
+                angle=-0.06,
+                about_point=center_segments.get_right(),
+                rate_func=there_and_back
+            ),
+            run_time=0.7
+        )
+
         scene.play(
             scene.camera.frame.animate.set(width=config.frame_width).move_to(ORIGIN),
             run_time=2
         )
         
-        # Highlight individual segments with sequential animation
-        for i, segment in enumerate(center_segments[:4]):
-            segment_glow = segment.copy().set_color(YELLOW).set_opacity(0.5)
-            scene.add(segment_glow)
-            
-            scene.play(
-                segment.animate.set_color(YELLOW),
-                run_time=0.4
-            )
-            scene.play(
-                segment.animate.set_color(GOLD),
-                FadeOut(segment_glow),
-                run_time=0.4
-            )
+        # Sweeping highlight across all segments
+        all_segments = list(center_segments) + list(left_wing) + list(right_wing)
+        sweep_to_yellow = [seg.animate.set_color(YELLOW) for seg in all_segments]
+        scene.play(
+            LaggedStart(*sweep_to_yellow, lag_ratio=0.06),
+            run_time=1.4
+        )
+        sweep_back_to_gold = [seg.animate.set_color(GOLD) for seg in all_segments]
+        scene.play(
+            LaggedStart(*sweep_back_to_gold, lag_ratio=0.06),
+            run_time=1.0
+        )
+
+        # Add subtle sparkle effects on a few random segments
+        spark_indices = list(range(0, len(all_segments), max(1, len(all_segments)//6)))[:6]
+        sparkles = VGroup()
+        for idx in spark_indices:
+            star = Star(n=5, color=WHITE, fill_opacity=0.9).scale(0.12)
+            star.move_to(all_segments[idx].get_center())
+            star.set_opacity(0)
+            sparkles.add(star)
+        scene.add(sparkles)
+        scene.play(
+            LaggedStart(
+                *[AnimationGroup(FadeIn(star, scale=0.3), star.animate.scale(1.4)) for star in sparkles],
+                lag_ratio=0.1
+            ),
+            run_time=0.8
+        )
+        scene.play(
+            LaggedStart(*[FadeOut(star) for star in sparkles], lag_ratio=0.1),
+            run_time=0.6
+        )
         
         # Final confirmation with dramatic effect
         confirm_text = Text("PRIMARY MIRROR DEPLOYED", font_size=24, color=GREEN)
@@ -83,7 +119,9 @@ def primary_mirror_deployment(scene):
         success_icon = Star(n=5, color=GREEN, fill_opacity=0.8).scale(0.2)
         success_icon.next_to(confirm_text, LEFT, buff=0.2)
         
+        # Brief focus-in on confirmation
         scene.play(
+            scene.camera.frame.animate.scale(0.9).move_to(primary_mirror.get_center()),
             Write(confirm_text),
             DrawBorderThenFill(success_icon),
             run_time=1.5
@@ -91,5 +129,6 @@ def primary_mirror_deployment(scene):
         scene.wait(1.5)
         scene.play(
             FadeOut(confirm_text),
-            FadeOut(success_icon)
+            FadeOut(success_icon),
+            scene.camera.frame.animate.set(width=config.frame_width).move_to(ORIGIN)
         )
