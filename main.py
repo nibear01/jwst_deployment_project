@@ -21,7 +21,7 @@ ACCENT_BLUE = "#1E90FF"
 
 class MasterScene(MovingCameraScene):
     def construct(self):
-        self.add_sound("jwst_voice.mp3", time_offset=0.0, gain=None)
+        #self.add_sound("jwst_voice.mp3", time_offset=0.0, gain=None)
         self.camera.background_color = DEEP_BLUE
         
         stars, nebula = self.create_space_background()
