@@ -102,26 +102,26 @@ manim -pqh main.py MasterScene
 
 # Realistic space background with parallax starfield & nebula
 
-## JWST model: mirrors, sunshield, bus, solar panel, antenna, etc.
+ JWST model: mirrors, sunshield, bus, solar panel, antenna, etc.
 
-## Cinematic transitions between deployment stages
+ Cinematic transitions between deployment stages
 
-## Voice narration via jwst_voice.mp3
+ Voice narration via jwst_voice.mp3
 
-## Modular scene structure: intro, deployments, outro
+ Modular scene structure: intro, deployments, outro
 
 
 # Intro → Title and JWST silhouette with starfield
 
-## Sunshield Deployment → 5-layer kite-shaped sunshield unfolds
+ Sunshield Deployment → 5-layer kite-shaped sunshield unfolds
 
-## Secondary Mirror Deployment → Tripod + mirror animation
+ Secondary Mirror Deployment → Tripod + mirror animation
 
-## Primary Mirror Deployment → 18 gold hexagonal mirrors unfold
+ Primary Mirror Deployment → 18 gold hexagonal mirrors unfold
 
-## Journey to L2 → Telescope travels to orbit
+ Journey to L2 → Telescope travels to orbit
 
-## Outro → Glowing JWST logo with fade-out
+ Outro → Glowing JWST logo with fade-out
 
 
 # 🎵 Audio Integration
@@ -136,6 +136,6 @@ Replace jwst_voice.mp3 with your own audio if needed.
 
 # 📝 Notes
 
-## Make sure your virtual environment is active before running Manim
+ Make sure your virtual environment is active before running Manim
 
-## Ensure FFmpeg is installed and accessible in PATH for mp4 rendering
+ Ensure FFmpeg is installed and accessible in PATH for mp4 rendering
