@@ -46,25 +46,46 @@ The animation is narrated (via `jwst_voice.mp3`) to explain how the telescope wo
 
 ---
 
-## ⚙️ Requirements
+## ⚙️ Setup & Requirements
 
-- **Python** ≥ 3.9
+- **Python** ≥ 3.9  
 - **Manim Community Edition** ≥ 0.19.0  
 - **NumPy**  
-- **gtts
+- **gtts**  
 - **FFmpeg** (for rendering mp4 with sound)
 
-Install requirements with:
+### 1️⃣ Create & Activate Virtual Environment
+
 ```bash
-pip install -r requirements.txt
+# Create a virtual environment
+python -m venv venv
+```
 
 
-## ▶️ Running the Project
+# Activate on Windows
+```
+venv\Scripts\activate
+```
 
-To render the full cinematic sequence:
+# Activate on macOS/Linux
+```
+source venv/bin/activate
+```
 
-manim -pqh src/main.py MasterScene
+# Install Requirements
+```
+pip install manim numpy gtts
+```
 
+# Running the Project
+
+Render the full cinematic sequence:
+
+```
+manim -pqh main.py MasterScene
+```
+
+Flags:
 
 -p → preview after render
 
@@ -72,33 +93,49 @@ manim -pqh src/main.py MasterScene
 
 Example for high-quality render:
 
-manim -pqh src/main.py MasterScene
+```
+manim -pqh main.py MasterScene
+```
 
 
-## 🎬 Features
+🎬 Features
 
-### ✅ Realistic space background with parallax starfield & nebula
-### ✅ JWST model (mirrors, sunshield, bus, solar panel, antenna, etc.)
-### ✅ Cinematic transitions between deployment stages
-### ✅ Voice narration with jwst_voice.mp3
-### ✅ Modular scenes (intro, deployments, outro)
+# Realistic space background with parallax starfield & nebula
 
+## JWST model: mirrors, sunshield, bus, solar panel, antenna, etc.
 
-##📖 Scenes Explained
+## Cinematic transitions between deployment stages
 
-### Intro → Title and silhouette of JWST with starfield
-### Sunshield Deployment → 5-layer kite-shaped sunshield unfolds
-### Secondary Mirror Deployment → Tripod + mirror animation
-### Primary Mirror Deployment → 18 gold hexagonal mirrors unfold
-### Journey to L2 → Telescope shown traveling towards orbit
-### Outro → Glowing JWST logo with fade-out
+## Voice narration via jwst_voice.mp3
+
+## Modular scene structure: intro, deployments, outro
 
 
-##🎵 Audio Integration
+# Intro → Title and JWST silhouette with starfield
 
-###The line:
+## Sunshield Deployment → 5-layer kite-shaped sunshield unfolds
 
+## Secondary Mirror Deployment → Tripod + mirror animation
+
+## Primary Mirror Deployment → 18 gold hexagonal mirrors unfold
+
+## Journey to L2 → Telescope travels to orbit
+
+## Outro → Glowing JWST logo with fade-out
+
+
+# 🎵 Audio Integration
+
+Add narration with:
+
+```
 self.add_sound("jwst_voice.mp3", time_offset=0.0)
+```
 
-adds narration at the start. Replace with your own narration if needed.
+Replace jwst_voice.mp3 with your own audio if needed.
 
+# 📝 Notes
+
+## Make sure your virtual environment is active before running Manim
+
+## Ensure FFmpeg is installed and accessible in PATH for mp4 rendering
