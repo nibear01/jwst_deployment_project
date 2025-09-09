@@ -21,17 +21,17 @@ ACCENT_BLUE = "#1E90FF"
 
 class MasterScene(MovingCameraScene):
     def construct(self):
-        #self.add_sound("jwst_voice.mp3", time_offset=0.0, gain=None)
+        # self.add_sound("jwst_voice.mp3", time_offset=0.0, gain=None)
         self.camera.background_color = DEEP_BLUE
         
         stars, nebula = self.create_space_background()
         self.add(stars, nebula)
         
         self.play(FadeIn(stars, nebula, run_time=3))
-        intro_scene(self)
-        
+        intro_scene(self)   #done 
+
         # Main deployment sequences with smooth transitions
-        sunshield_deployment(self)
+        sunshield_deployment(self)   #done
         self.transition_effect("Secondary Mirror Deployment")
         secondary_mirror_deployment(self) 
         self.transition_effect("Primary Mirror Deployment")
@@ -39,7 +39,7 @@ class MasterScene(MovingCameraScene):
         self.transition_effect("Journey to L2")
         l2_explainer(self)
 
-        outro_scene(self)
+        outro_scene(self)      #done
 
     def create_space_background(self):
         """Create a rich space background with stars and nebula"""
@@ -196,7 +196,7 @@ class MasterScene(MovingCameraScene):
         
         # Primary mirror (18 segments)
         primary_mirror = self.create_primary_mirror()
-        primary_mirror.shift(UP * 3.5)
+        primary_mirror.shift(UP * 3.2)
         
         # Secondary mirror on tripod
         secondary_mirror = Circle(radius=0.3, color=GOLD, fill_opacity=0.9)
@@ -246,9 +246,14 @@ class MasterScene(MovingCameraScene):
         solar_panel = Rectangle(
             width=0.2, height=2.5,
             color=LIGHT_METAL,
-            fill_opacity=0.9,
+            fill_opacity=1,
             stroke_width=1
         ).next_to(bus, LEFT, buff=0).shift(UP * 0.2)
+
+        # mirror_boom = VGroup(
+        #     primary_mirror, dta_tower
+        # )
+        # primary_mirror.shift(UP * 0.6 + dta_tower.height / 2)
         
         # High gain antenna
         antenna = VGroup(
@@ -259,46 +264,59 @@ class MasterScene(MovingCameraScene):
         return Group(sunshield_layers, primary_mirror, secondary_system, bus, bus_details, dta_tower, solar_panel, antenna)
 
     def create_primary_mirror(self):
-        """Create the 18-segment primary mirror"""
-        def create_hexagon(radius=0.25):
-            return RegularPolygon(6, radius=radius, color=GOLD, 
-                                fill_opacity=0.95, stroke_color=WHITE, stroke_width=1.5)
-        
+        """Create the 18-segment primary mirror with larger polygons."""
+
+        def create_hexagon(radius=0.5, color="#FFD700"):
+            hexagon = RegularPolygon(6, radius=radius)
+            hexagon.set_fill(color, opacity=1)
+            hexagon.set_stroke(WHITE, width=1.5)
+            return hexagon
+
         # Central hexagon
         center_hex = create_hexagon()
-        hexagons = VGroup(center_hex)
-        
+        all_segments = VGroup(center_hex)
+
         # First ring (6 hexagons)
         for i in range(6):
             angle = i * PI / 3
-            hex_pos = 0.43 * np.array([np.cos(angle), np.sin(angle), 0])
-            hex_seg = create_hexagon().move_to(hex_pos)
-            hexagons.add(hex_seg)
-        
-        # Second ring (12 hexagons) - wings
+            hex_pos = 0.9 * np.array([np.cos(angle), np.sin(angle), 0]) 
+            seg = create_hexagon().move_to(hex_pos)
+            all_segments.add(seg)
+
+        # Second ring (12 hexagons)
         wing_left = VGroup()
         wing_right = VGroup()
-        
         for i in range(6):
             angle = i * PI / 3
-            hex_pos = 0.86 * np.array([np.cos(angle), np.sin(angle), 0])
-            hex_seg = create_hexagon().move_to(hex_pos)
+            hex_pos = 1.75 * np.array([np.cos(angle), np.sin(angle), 0]) 
+            seg = create_hexagon().move_to(hex_pos)
             if hex_pos[0] < 0:
-                wing_left.add(hex_seg)
+                wing_left.add(seg)
             else:
-                wing_right.add(hex_seg)
-        
-        # Additional outer hexagons
+                wing_right.add(seg)
+
         for i in range(6):
-            angle = i * PI / 3 + PI/6
-            hex_pos = 0.86 * np.array([np.cos(angle), np.sin(angle), 0])
-            hex_seg = create_hexagon().move_to(hex_pos)
+            angle = i * PI / 3 + PI / 6
+            hex_pos = 1.75 * np.array([np.cos(angle), np.sin(angle), 0])
+            seg = create_hexagon().move_to(hex_pos)
             if hex_pos[0] < 0:
-                wing_left.add(hex_seg)
+                wing_left.add(seg)
             else:
-                wing_right.add(hex_seg)
-        
-        return Group(hexagons, wing_left, wing_right)
+                wing_right.add(seg)
+
+        # Frame & highlights
+        frame = SurroundingRectangle(all_segments, buff=0.2, color="#FFE65B", stroke_width=2).set_opacity(0.3)
+
+        highlights = VGroup()
+        for hex_seg in all_segments:
+            dot = Dot(point=hex_seg.get_center() + 0.15*UP + 0.1*RIGHT, color=WHITE, radius=0.04)  # slightly larger
+            highlights.add(dot)
+
+        mirror_group = VGroup(all_segments, wing_left, wing_right, frame, highlights)
+
+        return mirror_group
+
+
 
 
     
