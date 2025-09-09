@@ -52,7 +52,6 @@ The animation features:
 
 ```
 │── src/
-│   ├── main.py                 # Master scene entry point
 │   ├── scenes/                 # Individual deployment scenes
 │   │   ├── intro.py           # Introduction sequence
 │   │   ├── sunshield.py       # Sunshield deployment animation
@@ -70,6 +69,7 @@ The animation features:
 │   ├── music/                 # Background music (optional)
 │   ├── images/                # Reference images and textures
 │
+├── main.py                    # Master scene entry point
 │── output/                    # Rendered animation files
 │── README.md                  # Project documentation
 │── requirements.txt           # Python dependencies
