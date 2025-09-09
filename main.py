@@ -1,12 +1,12 @@
 """JWST Deployment Animation V2 - Cinematic Master Scene"""
 from manim import *
 import numpy as np
-from scenes.intro import intro_scene
-from scenes.outro import outro_scene
-from scenes.sunshield import sunshield_deployment
-from scenes.secondary_mirror import secondary_mirror_deployment
-from scenes.primary_mirror import primary_mirror_deployment
-from scenes.l2_explainer import l2_explainer
+from src.scenes.outro import outro_scene
+from src.scenes.intro import intro_scene
+from src.scenes.sunshield import sunshield_deployment
+from src.scenes.secondary_mirror import secondary_mirror_deployment
+from src.scenes.primary_mirror import primary_mirror_deployment
+from src.scenes.l2_explainer import l2_explainer
 
 # Constants
 GOLD = "#D4AF37"
